@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가위바위보</title>
+    <style>
+        #computer {
+        width: 142px;
+        height: 200px;
+    }
+    </style>
+</head>
+<body>
+    <div id="computer"></div>
+    <div>
+        <button id="sci" class="btn">가위</button>
+        <button id="rock" class="btn">바위</button>
+        <button id="paper" class="btn">보</button>
+    </div>
+    <div id="score">0</div>
+    <script>
+        const $computer = document.querySelector('#computer');
+        const $score = document.querySelector('#score');
+        const $rock = document.querySelector('#rock');
+        const $sci = document.querySelector('#sci');
+        const $paper = document.querySelector('#paper');
+        const IMG_URL = './가위바위보.png';
+        $computer.style.background = `url(${IMG_URL}) -440px 0`;
+        $computer.style.backgroundSize = 'auto 200px';
+
+        const rspX = {
+            sci: '0', // 가위
+            rock: '-220px', // 바위
+            paper: '-440px', // 보
+        };
+
+        let computerChoice = 'sci';
+        const changeComputerHand = () => {
+            if (computerChoice === 'sci') {  // 가위면
+                computerChoice = 'rock';
+            } else if (computerChoice === 'rock') { // 바위
+                computerChoice = 'paper';
+            } else { // 보
+                computerChoice = 'sci';
+            }
+            // rspX.computerChoice -> 문자열, rspX[computerChoice] -> 변수값
+            $computer.style.background = `url(${IMG_URL}) ${rspX[computerChoice]} 0`;
+            $computer.style.backgroundSize = 'auto 200px';
+        }
+        let intervalId = setInterval(changeComputerHand, 50);
+
+        const scoreTable = {
+            rock : 1,
+            sci : 0,
+            paper : 2,
+        };
+
+        // 한번 클릭 후, 버그 없이 다시 클릭할 수 있게 만들어줌.
+        let clickable = true; // clickable = 플레그 변수 
+        let computer = 0;
+        let me = 0;
+
+        const clickButton = () => {
+            if (clickable) {
+                clearInterval(intervalId);
+                clickable = false;
+                // 점수 계산 및 화면 표시
+
+                const myChoice = event.target.textContent === '바위'
+                ? 'rock'
+                : event.target.textContent === '가위'
+                    ? 'sci'
+                    : 'paper';
+                
+                const myScore = scoreTable[myChoice];
+                const computerScore = scoreTable[computerChoice];
+                const diff = myScore - computerScore;
+                //console.log(computerChoice, myChoice, myScore, computerScore, diff);
+
+                let message = '';
+                // diff === '고양이' || diff === '강아지' || diff === '호랑이' || diff === '사자'
+                // ['고양이', '강아지', '호랑이', '사자'].includes(diff) / 위에 걸 이렇게 바꿔줄 수 있음
+                if ([1, -2].includes(diff)) {  // 2,-1 은 승리조건, -2,1은 패배조건, 점수표 참고
+                    me += 1;
+                    message = '승리';
+                } else if ([-1, 2].includes(diff)) {
+                    computer += 1;
+                    message = '패배';
+                } else {
+                    message = '무승부';
+                }
+
+                if (me >= 3) {
+                    $score.textContent = `나의 승리 ${me}:${computer}`;
+                } else if (computer >= 3) {
+                    $score.textContent = `컴퓨터의 승리 ${me}:${computer}`;
+                } else {
+                    $score.textContent = `${message} ${me}:${computer}`;
+                    setTimeout(() => {
+                        clickable = true; 
+                        intervalId = setInterval(changeComputerHand, 50);
+                    }, 1000);
+                }
+            }
+        };
+        $rock.addEventListener('click', clickButton);
+        $sci.addEventListener('click', clickButton);
+        $paper.addEventListener('click', clickButton);
+
+    </script>
+</body>
+</html>
